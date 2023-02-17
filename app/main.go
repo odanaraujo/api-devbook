@@ -11,6 +11,6 @@ import (
 func main() {
 	config.Carregar()
 	r := routers.RouterConfig()
-	fmt.Printf("Connected on port %d", config.Port)
+	fmt.Printf("Connected on port - %d", config.Port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), r))
 }
