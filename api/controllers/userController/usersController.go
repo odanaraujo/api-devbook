@@ -104,7 +104,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(user); err != nil {
-		w.Write([]byte("Error converting users to json"))
+		w.Write([]byte("Error converting users to json "))
 		return
 	}
 }
