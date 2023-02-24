@@ -6,7 +6,7 @@ import (
 	"github.com/odanaraujo/api-devbook/infrastructure/repository"
 )
 
-func SaveUSer(user domain.Users) (uint64, error) {
+func SaveUSer(user domain.User) (uint64, error) {
 
 	db, err := database.Connection()
 
@@ -25,11 +25,11 @@ func SaveUSer(user domain.Users) (uint64, error) {
 	return userId, nil
 }
 
-func GetAll() ([]domain.Users, error) {
+func GetAll() ([]domain.User, error) {
 	db, err := database.Connection()
 
 	if err != nil {
-		return []domain.Users{}, err
+		return []domain.User{}, err
 	}
 
 	defer db.Close()
@@ -38,17 +38,17 @@ func GetAll() ([]domain.Users, error) {
 	users, err := repo.GetAll()
 
 	if err != nil {
-		return []domain.Users{}, err
+		return []domain.User{}, err
 	}
 
 	return users, nil
 }
 
-func GetUserID(ID uint64) (domain.Users, error) {
+func GetUserID(ID uint64) (domain.User, error) {
 	db, err := database.Connection()
 
 	if err != nil {
-		return domain.Users{}, err
+		return domain.User{}, err
 	}
 
 	defer db.Close()
@@ -57,17 +57,17 @@ func GetUserID(ID uint64) (domain.Users, error) {
 	user, err := repo.GetUserId(ID)
 
 	if err != nil {
-		return domain.Users{}, err
+		return domain.User{}, err
 	}
 
 	return user, nil
 }
 
-func UpdateUser(ID uint64, newUser domain.Users) (domain.Users, error) {
+func UpdateUser(ID uint64, newUser domain.User) (domain.User, error) {
 	db, err := database.Connection()
 
 	if err != nil {
-		return domain.Users{}, err
+		return domain.User{}, err
 	}
 
 	defer db.Close()
@@ -76,7 +76,7 @@ func UpdateUser(ID uint64, newUser domain.Users) (domain.Users, error) {
 	newUser, err = repo.UpdateUser(ID, newUser)
 
 	if err != nil {
-		return domain.Users{}, err
+		return domain.User{}, err
 	}
 
 	return newUser, nil

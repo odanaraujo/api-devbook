@@ -21,7 +21,7 @@ func SaveUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user domain.Users
+	var user domain.User
 
 	if err := json.Unmarshal(body, &user); err != nil {
 		w.Write([]byte("error when trying to convert user"))
@@ -104,7 +104,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user domain.Users
+	var user domain.User
 
 	if err := json.Unmarshal(body, &user); err != nil {
 		w.Write([]byte("error when trying to convert user"))

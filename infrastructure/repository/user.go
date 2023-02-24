@@ -17,7 +17,7 @@ func NewRepositoryUser(db *sql.DB) *users {
 	return &users{db}
 }
 
-func (usersRepository users) Save(user domain.Users) (uint64, error) {
+func (usersRepository users) Save(user domain.User) (uint64, error) {
 	statement, err := usersRepository.db.Prepare("insert into usuarios (nome, nick, email, senha) values (?, ?, ?, ?)")
 
 	defer statement.Close()
@@ -41,7 +41,7 @@ func (usersRepository users) Save(user domain.Users) (uint64, error) {
 	return uint64(idInsert), nil
 }
 
-func (usersRepository users) GetAll() ([]domain.Users, error) {
+func (usersRepository users) GetAll() ([]domain.User, error) {
 	lines, err := usersRepository.db.Query("select nome, nick, email from usuarios")
 
 	if err != nil {
@@ -50,9 +50,9 @@ func (usersRepository users) GetAll() ([]domain.Users, error) {
 
 	defer lines.Close()
 
-	var users []domain.Users
+	var users []domain.User
 	for lines.Next() {
-		var user domain.Users
+		var user domain.User
 		if err := lines.Scan(&user.Name, &user.Nick, &user.Email); err != nil {
 			return nil, err
 		}
@@ -62,29 +62,29 @@ func (usersRepository users) GetAll() ([]domain.Users, error) {
 	return users, nil
 }
 
-func (usersRepository users) GetUserId(ID uint64) (domain.Users, error) {
+func (usersRepository users) GetUserId(ID uint64) (domain.User, error) {
 	line, err := usersRepository.db.Query("select nome, nick, email from usuarios where id=?", ID)
 
 	if err != nil {
-		return domain.Users{}, err
+		return domain.User{}, err
 	}
 
-	var user domain.Users
+	var user domain.User
 
 	for line.Next() {
 		if err := line.Scan(&user.Name, &user.Nick, &user.Email); err != nil {
-			return domain.Users{}, err
+			return domain.User{}, err
 		}
 	}
 
 	return user, nil
 }
 
-func (usersRepository users) UpdateUser(ID uint64, user domain.Users) (domain.Users, error) {
+func (usersRepository users) UpdateUser(ID uint64, user domain.User) (domain.User, error) {
 	statement, err := usersRepository.db.Prepare("update usuarios set nome = ?, email = ?, nick = ? where id = ?")
 
 	if err != nil {
-		return domain.Users{}, err
+		return domain.User{}, err
 	}
 
 	defer statement.Close()
@@ -92,7 +92,7 @@ func (usersRepository users) UpdateUser(ID uint64, user domain.Users) (domain.Us
 	_, err = statement.Exec(user.Name, user.Email, user.Nick, ID)
 
 	if err != nil {
-		return domain.Users{}, err
+		return domain.User{}, err
 	}
 
 	return user, nil

@@ -5,9 +5,9 @@ import (
 )
 
 type Service interface {
-	SaveUser(user domain.Users) (uint64, error)
-	GetAll() ([]domain.Users, error)
-	GetUserID(ID uint64) (domain.Users, error)
-	UpdateUser(ID uint64, newUser domain.Users) (domain.Users, error)
+	SaveUser(user domain.User) (uint64, error)
+	GetAll() ([]domain.User, error)
+	GetUserID(ID uint64) (domain.User, error)
+	UpdateUser(ID uint64, newUser domain.User) (domain.User, error)
 	DeleteUser(ID uint64) error
 }
