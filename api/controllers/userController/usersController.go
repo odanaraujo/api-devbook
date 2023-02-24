@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/odanaraujo/api-devbook/api/services"
 	"github.com/odanaraujo/api-devbook/domain"
-	"github.com/odanaraujo/api-devbook/infrastructure/database"
-	"github.com/odanaraujo/api-devbook/infrastructure/repository"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -17,6 +17,7 @@ func SaveUser(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		w.Write([]byte("Unable to read request"))
+		log.Fatalf("SaveUser %s", err)
 		return
 	}
 
@@ -24,53 +25,36 @@ func SaveUser(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.Unmarshal(body, &user); err != nil {
 		w.Write([]byte("error when trying to convert user"))
+		log.Fatalf("SaveUser %s", err)
 		return
 	}
 
-	db, err := database.Connection()
+	ID, err := services.SaveUSer(user)
 
-	if err != nil {
-		w.Write([]byte("error connecting to database"))
-		return
-	}
-
-	defer db.Close()
-
-	repo := repository.NewRepositoryUser(db)
-	userId, err := repo.Save(user)
-
-	if err != nil || userId == 0 {
+	if err != nil || ID == 0 {
 		w.Write([]byte("Error when trying to save"))
+		log.Fatalf("SaveUser %s", err)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(fmt.Sprintf("Usuário inserido com sucesso %d", userId))
+	json.NewEncoder(w).Encode(fmt.Sprintf("Usuário inserido com sucesso %d", ID))
 }
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
-	var users []domain.Users
 
-	db, err := database.Connection()
-
-	if err != nil {
-		w.Write([]byte("error connecting to database"))
-		return
-	}
-
-	defer db.Close()
-
-	repo := repository.NewRepositoryUser(db)
-	users, err = repo.GetAll(users)
+	users, err := services.GetAll()
 
 	if err != nil {
 		w.Write([]byte("Error when trying to get all users"))
+		log.Fatalf("GetUsers %s", err)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(users); err != nil {
 		w.Write([]byte("Error converting users to json"))
+		log.Fatalf("GetUsers %s", err)
 		return
 	}
 }
@@ -85,26 +69,18 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := database.Connection()
+	user, err := services.GetUserID(ID)
 
 	if err != nil {
-		w.Write([]byte("error connecting to database"))
-		return
-	}
-
-	defer db.Close()
-
-	repo := repository.NewRepositoryUser(db)
-	user, err := repo.GetUserId(ID)
-
-	if err != nil {
-		w.Write([]byte("Error when trying to get all users"))
+		w.Write([]byte("Error when trying to get user"))
+		log.Fatalf("GetUser %s", err)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(user); err != nil {
 		w.Write([]byte("Error converting users to json "))
+		log.Fatalf("GetUser %s", err)
 		return
 	}
 }

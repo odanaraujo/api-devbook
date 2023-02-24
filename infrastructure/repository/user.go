@@ -41,8 +41,8 @@ func (usersRepository users) Save(user domain.Users) (uint64, error) {
 	return uint64(idInsert), nil
 }
 
-func (usersRepository users) GetAll(users []domain.Users) ([]domain.Users, error) {
-	lines, err := usersRepository.db.Query("select * from usuarios")
+func (usersRepository users) GetAll() ([]domain.Users, error) {
+	lines, err := usersRepository.db.Query("select nome, nick, email from usuarios")
 
 	if err != nil {
 		return nil, err
@@ -50,9 +50,10 @@ func (usersRepository users) GetAll(users []domain.Users) ([]domain.Users, error
 
 	defer lines.Close()
 
+	var users []domain.Users
 	for lines.Next() {
 		var user domain.Users
-		if err := lines.Scan(&user.ID, &user.Name, &user.Email, &user.Nick); err != nil {
+		if err := lines.Scan(&user.Name, &user.Nick, &user.Email); err != nil {
 			return nil, err
 		}
 		users = append(users, user)
@@ -62,7 +63,7 @@ func (usersRepository users) GetAll(users []domain.Users) ([]domain.Users, error
 }
 
 func (usersRepository users) GetUserId(ID uint64) (domain.Users, error) {
-	line, err := usersRepository.db.Query("select * from usuarios where id=?", ID)
+	line, err := usersRepository.db.Query("select nome, nick, email from usuarios where id=?", ID)
 
 	if err != nil {
 		return domain.Users{}, err
@@ -71,7 +72,7 @@ func (usersRepository users) GetUserId(ID uint64) (domain.Users, error) {
 	var user domain.Users
 
 	for line.Next() {
-		if err := line.Scan(&user.ID, &user.Name, &user.Email, &user.Nick); err != nil {
+		if err := line.Scan(&user.Name, &user.Nick, &user.Email); err != nil {
 			return domain.Users{}, err
 		}
 	}

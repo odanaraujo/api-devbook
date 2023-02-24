@@ -19,7 +19,7 @@ var RouterUsers = []Router{
 		IsAuthentication: false,
 	},
 	{
-		URI:              "/user/{i}",
+		URI:              "/user/{id}",
 		Method:           http.MethodGet,
 		Function:         userController.GetUser,
 		IsAuthentication: false,
