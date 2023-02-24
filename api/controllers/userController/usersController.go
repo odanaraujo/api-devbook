@@ -84,3 +84,62 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	ID, err := strconv.ParseUint(params["id"], 10, 32)
+
+	if err != nil {
+		w.Write([]byte("Error converting id to uint"))
+		log.Fatalf("SaveUser %s", err)
+		return
+	}
+
+	body, err := io.ReadAll(r.Body)
+
+	if err != nil {
+		w.Write([]byte("Unable to read request"))
+		log.Fatalf("SaveUser %s", err)
+		return
+	}
+
+	var user domain.Users
+
+	if err := json.Unmarshal(body, &user); err != nil {
+		w.Write([]byte("error when trying to convert user"))
+		log.Fatalf("SaveUser %s", err)
+		return
+	}
+
+	newUser, err := services.UpdateUser(ID, user)
+
+	if err != nil {
+		w.Write([]byte("Error when trying to update user"))
+		log.Fatalf("UpdateUser %s", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(newUser); err != nil {
+		w.Write([]byte("Error converting users to json "))
+		log.Fatalf("GetUser %s", err)
+		return
+	}
+}
+
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	ID, err := strconv.ParseUint(params["id"], 10, 32)
+
+	if err != nil {
+		w.Write([]byte("Error converting id to uint"))
+		log.Fatalf("SaveUser %s", err)
+		return
+	}
+
+	err = services.DeleteUser(ID)
+
+	w.WriteHeader(http.StatusNoContent)
+}

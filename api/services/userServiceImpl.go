@@ -62,3 +62,41 @@ func GetUserID(ID uint64) (domain.Users, error) {
 
 	return user, nil
 }
+
+func UpdateUser(ID uint64, newUser domain.Users) (domain.Users, error) {
+	db, err := database.Connection()
+
+	if err != nil {
+		return domain.Users{}, err
+	}
+
+	defer db.Close()
+
+	repo := repository.NewRepositoryUser(db)
+	newUser, err = repo.UpdateUser(ID, newUser)
+
+	if err != nil {
+		return domain.Users{}, err
+	}
+
+	return newUser, nil
+}
+
+func DeleteUser(ID uint64) error {
+	db, err := database.Connection()
+
+	if err != nil {
+		return err
+	}
+
+	defer db.Close()
+
+	repo := repository.NewRepositoryUser(db)
+	err = repo.DeleteUser(ID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

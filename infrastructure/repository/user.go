@@ -79,3 +79,39 @@ func (usersRepository users) GetUserId(ID uint64) (domain.Users, error) {
 
 	return user, nil
 }
+
+func (usersRepository users) UpdateUser(ID uint64, user domain.Users) (domain.Users, error) {
+	statement, err := usersRepository.db.Prepare("update usuarios set nome = ?, email = ?, nick = ? where id = ?")
+
+	if err != nil {
+		return domain.Users{}, err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(user.Name, user.Email, user.Nick, ID)
+
+	if err != nil {
+		return domain.Users{}, err
+	}
+
+	return user, nil
+}
+
+func (usersRepository users) DeleteUser(ID uint64) error {
+	statement, err := usersRepository.db.Prepare("delete from usuarios where id = ?")
+
+	if err != nil {
+		return err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(ID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
