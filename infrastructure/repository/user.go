@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/odanaraujo/api-devbook/domain"
 )
 
@@ -18,7 +19,7 @@ func NewRepositoryUser(db *sql.DB) *users {
 }
 
 func (usersRepository users) Save(user domain.User) (uint64, error) {
-	statement, err := usersRepository.db.Prepare("insert into usuarios (nome, nick, email, senha) values (?, ?, ?, ?)")
+	statement, err := usersRepository.db.Prepare("insert into usuarios (nome, nick, email, senha, dataCriacao) values (?, ?, ?, ?)")
 
 	defer statement.Close()
 
@@ -26,7 +27,7 @@ func (usersRepository users) Save(user domain.User) (uint64, error) {
 		return 0, err
 	}
 
-	insert, err := statement.Exec(user.Name, user.Email, user.Nick, user.Password)
+	insert, err := statement.Exec(user.Name, user.Nick, user.Email, user.Password, user.CreateDate)
 
 	if err != nil {
 		return 0, err
@@ -41,8 +42,9 @@ func (usersRepository users) Save(user domain.User) (uint64, error) {
 	return uint64(idInsert), nil
 }
 
-func (usersRepository users) GetAll() ([]domain.User, error) {
-	lines, err := usersRepository.db.Query("select nome, nick, email from usuarios")
+func (usersRepository users) GetAll(nickOrName string) ([]domain.User, error) {
+	nickOrName = fmt.Sprintf("%%%s%%", nickOrName)
+	lines, err := usersRepository.db.Query("select nome, nick, email, dataCriacao from usuarios where nome LIKE ? or nick LIKE ?", nickOrName, nickOrName)
 
 	if err != nil {
 		return nil, err
@@ -53,7 +55,7 @@ func (usersRepository users) GetAll() ([]domain.User, error) {
 	var users []domain.User
 	for lines.Next() {
 		var user domain.User
-		if err := lines.Scan(&user.Name, &user.Nick, &user.Email); err != nil {
+		if err := lines.Scan(&user.Name, &user.Nick, &user.Email, &user.CreateDate); err != nil {
 			return nil, err
 		}
 		users = append(users, user)
@@ -63,7 +65,7 @@ func (usersRepository users) GetAll() ([]domain.User, error) {
 }
 
 func (usersRepository users) GetUserId(ID uint64) (domain.User, error) {
-	line, err := usersRepository.db.Query("select nome, nick, email from usuarios where id=?", ID)
+	line, err := usersRepository.db.Query("select nome, nick, email, dataCriacao from usuarios where id=?", ID)
 
 	if err != nil {
 		return domain.User{}, err
@@ -72,7 +74,7 @@ func (usersRepository users) GetUserId(ID uint64) (domain.User, error) {
 	var user domain.User
 
 	for line.Next() {
-		if err := line.Scan(&user.Name, &user.Nick, &user.Email); err != nil {
+		if err := line.Scan(&user.Name, &user.Nick, &user.Email, &user.CreateDate); err != nil {
 			return domain.User{}, err
 		}
 	}

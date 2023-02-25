@@ -2,6 +2,7 @@ package userController
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/gorilla/mux"
 	"github.com/odanaraujo/api-devbook/api/response"
 	"github.com/odanaraujo/api-devbook/api/services"
@@ -9,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 func SaveUser(w http.ResponseWriter, r *http.Request) {
@@ -26,6 +28,11 @@ func SaveUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := user.Prepare(false); err != nil {
+		response.Erro(w, http.StatusBadRequest, err)
+		return
+	}
+
 	user.ID, err = services.SaveUSer(user)
 
 	if err != nil || user.ID == 0 {
@@ -38,7 +45,9 @@ func SaveUser(w http.ResponseWriter, r *http.Request) {
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
 
-	users, err := services.GetAll()
+	nameOrNick := strings.ToLower(r.URL.Query().Get("usuario"))
+
+	users, err := services.GetAll(nameOrNick)
 
 	if err != nil {
 		response.Erro(w, http.StatusInternalServerError, err)
@@ -64,6 +73,12 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		response.Erro(w, http.StatusInternalServerError, err)
 		return
 	}
+
+	if user.ID == 0 {
+		response.Erro(w, http.StatusNotFound, errors.New("User not found"))
+		return
+	}
+
 	response.JSON(w, http.StatusOK, user)
 }
 
@@ -91,7 +106,17 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := user.Prepare(true); err != nil {
+		response.Erro(w, http.StatusBadRequest, err)
+		return
+	}
+
 	newUser, err := services.UpdateUser(ID, user)
+
+	if newUser.ID == 0 {
+		response.Erro(w, http.StatusNotFound, errors.New("User not found"))
+		return
+	}
 
 	if err != nil {
 		response.Erro(w, http.StatusInternalServerError, err)

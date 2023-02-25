@@ -7,6 +7,7 @@ import (
 )
 
 func JSON(w http.ResponseWriter, statusCode int, dados interface{}) {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 
 	if err := json.NewEncoder(w).Encode(dados); err != nil {
@@ -17,7 +18,7 @@ func JSON(w http.ResponseWriter, statusCode int, dados interface{}) {
 func Erro(w http.ResponseWriter, statusCode int, err error) {
 
 	JSON(w, statusCode, struct {
-		Error string `json:"error"`
+		Error string `json:"message"`
 	}{
 		Error: err.Error(),
 	})

@@ -25,7 +25,7 @@ func SaveUSer(user domain.User) (uint64, error) {
 	return userId, nil
 }
 
-func GetAll() ([]domain.User, error) {
+func GetAll(nameOrNick string) ([]domain.User, error) {
 	db, err := database.Connection()
 
 	if err != nil {
@@ -35,7 +35,7 @@ func GetAll() ([]domain.User, error) {
 	defer db.Close()
 
 	repo := repository.NewRepositoryUser(db)
-	users, err := repo.GetAll()
+	users, err := repo.GetAll(nameOrNick)
 
 	if err != nil {
 		return []domain.User{}, err
