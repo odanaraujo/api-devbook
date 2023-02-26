@@ -1,4 +1,4 @@
-package services
+package userService
 
 import (
 	"github.com/odanaraujo/api-devbook/domain"
