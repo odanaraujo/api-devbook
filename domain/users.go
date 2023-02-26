@@ -3,6 +3,7 @@ package domain
 import (
 	"errors"
 	"github.com/badoux/checkmail"
+	"github.com/odanaraujo/api-devbook/infrastructure/security"
 	"strings"
 	"time"
 )
@@ -21,7 +22,9 @@ func (user *User) Prepare(isUpdate bool) error {
 		return err
 	}
 
-	user.format()
+	if err := user.format(isUpdate); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -49,8 +52,25 @@ func (user *User) validator(isUpdate bool) error {
 	return nil
 }
 
-func (user *User) format() {
+func (user *User) format(isUpdate bool) error {
+
 	user.Name = strings.TrimSpace(user.Name)
 	user.Nick = strings.TrimSpace(user.Nick)
 	user.Email = strings.TrimSpace(user.Email)
+	if err := formatPassword(isUpdate, user); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func formatPassword(isUpdate bool, user *User) error {
+	if !isUpdate {
+		passwordHash, err := security.Hash(user.Password)
+		if err != nil {
+			return err
+		}
+		user.Password = string(passwordHash)
+	}
+	return nil
 }

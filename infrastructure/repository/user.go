@@ -19,7 +19,7 @@ func NewRepositoryUser(db *sql.DB) *users {
 }
 
 func (usersRepository users) Save(user domain.User) (uint64, error) {
-	statement, err := usersRepository.db.Prepare("insert into usuarios (nome, nick, email, senha, dataCriacao) values (?, ?, ?, ?)")
+	statement, err := usersRepository.db.Prepare("insert into usuarios (nome, nick, email, senha) values (?, ?, ?, ?)")
 
 	defer statement.Close()
 
@@ -27,7 +27,7 @@ func (usersRepository users) Save(user domain.User) (uint64, error) {
 		return 0, err
 	}
 
-	insert, err := statement.Exec(user.Name, user.Nick, user.Email, user.Password, user.CreateDate)
+	insert, err := statement.Exec(user.Name, user.Nick, user.Email, user.Password)
 
 	if err != nil {
 		return 0, err
