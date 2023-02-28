@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/gorilla/mux"
 	"github.com/odanaraujo/api-devbook/api/response"
-	"github.com/odanaraujo/api-devbook/api/services"
+	"github.com/odanaraujo/api-devbook/api/services/userService"
 	"github.com/odanaraujo/api-devbook/domain"
 	"io"
 	"net/http"
@@ -33,7 +33,7 @@ func SaveUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user.ID, err = services.SaveUSer(user)
+	user.ID, err = userService.SaveUSer(user)
 
 	if err != nil || user.ID == 0 {
 		response.Erro(w, http.StatusInternalServerError, err)
@@ -47,7 +47,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	nameOrNick := strings.ToLower(r.URL.Query().Get("usuario"))
 
-	users, err := services.GetAll(nameOrNick)
+	users, err := userService.GetAll(nameOrNick)
 
 	if err != nil {
 		response.Erro(w, http.StatusInternalServerError, err)
@@ -67,7 +67,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := services.GetUserID(ID)
+	user, err := userService.GetUserID(ID)
 
 	if err != nil {
 		response.Erro(w, http.StatusInternalServerError, err)
@@ -111,7 +111,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newUser, err := services.UpdateUser(ID, user)
+	newUser, err := userService.UpdateUser(ID, user)
 
 	if newUser.ID == 0 {
 		response.Erro(w, http.StatusNotFound, errors.New("User not found"))
@@ -135,7 +135,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = services.DeleteUser(ID)
+	err = userService.DeleteUser(ID)
 
 	if err != nil {
 		response.Erro(w, http.StatusInternalServerError, err)

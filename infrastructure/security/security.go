@@ -1,11 +1,20 @@
 package security
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"errors"
+	"golang.org/x/crypto/bcrypt"
+)
 
 func Hash(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 }
 
 func VerifyPasswprd(passwordHash string, password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password))
+	err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password))
+
+	if err != nil {
+		return errors.New("incorrect password")
+	}
+
+	return nil
 }
