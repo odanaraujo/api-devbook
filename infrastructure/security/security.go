@@ -9,7 +9,7 @@ func Hash(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 }
 
-func VerifyPasswprd(passwordHash string, password string) error {
+func VerifyPassword(passwordHash string, password string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password))
 
 	if err != nil {

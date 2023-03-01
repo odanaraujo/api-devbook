@@ -19,7 +19,7 @@ func NewRepositoryLogin(db *sql.DB) *login {
 
 func (loginRequest login) GetUserWithEmail(email string) (request.LoginRequest, error) {
 
-	line, err := loginRequest.db.Query("select email, senha from usuarios where email = ?", email)
+	line, err := loginRequest.db.Query("select id, email, senha from usuarios where email = ?", email)
 
 	if err != nil {
 		return request.LoginRequest{}, err
@@ -29,7 +29,7 @@ func (loginRequest login) GetUserWithEmail(email string) (request.LoginRequest, 
 
 	var request request.LoginRequest
 	for line.Next() {
-		if err := line.Scan(&request.Email, &request.Password); err != nil {
+		if err := line.Scan(&request.ID, &request.Email, &request.Password); err != nil {
 			return request, err
 		}
 	}

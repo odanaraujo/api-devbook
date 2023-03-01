@@ -65,7 +65,7 @@ func (usersRepository users) GetAll(nickOrName string) ([]domain.User, error) {
 }
 
 func (usersRepository users) GetUserId(ID uint64) (domain.User, error) {
-	line, err := usersRepository.db.Query("select nome, nick, email, dataCriacao from usuarios where id=?", ID)
+	line, err := usersRepository.db.Query("select id, nome, nick, email, dataCriacao from usuarios where id=?", ID)
 
 	if err != nil {
 		return domain.User{}, err
@@ -74,7 +74,7 @@ func (usersRepository users) GetUserId(ID uint64) (domain.User, error) {
 	var user domain.User
 
 	for line.Next() {
-		if err := line.Scan(&user.Name, &user.Nick, &user.Email, &user.CreateDate); err != nil {
+		if err := line.Scan(&user.ID, &user.Name, &user.Nick, &user.Email, &user.CreateDate); err != nil {
 			return domain.User{}, err
 		}
 	}

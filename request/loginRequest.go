@@ -3,6 +3,7 @@ package request
 import "errors"
 
 type LoginRequest struct {
+	ID       uint64
 	Email    string
 	Password string
 }
