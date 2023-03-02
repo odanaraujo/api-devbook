@@ -8,6 +8,17 @@ import (
 	"net/http"
 )
 
+//GERAR A KEY ALEATÓRIA
+//func init() {
+//	key := make([]byte, 64)
+//	if _, err := rand.Read(key); err != nil {
+//		log.Fatal(err)
+//	}
+//
+//	stringBase64 := base64.StdEncoding.EncodeToString(key)
+//	fmt.Printf(stringBase64)
+//}
+
 func main() {
 	config.Carregar()
 	r := routers.RouterConfig()

@@ -7,6 +7,7 @@ import (
 	"github.com/odanaraujo/api-devbook/api/response"
 	"github.com/odanaraujo/api-devbook/api/services/userService"
 	"github.com/odanaraujo/api-devbook/domain"
+	"github.com/odanaraujo/api-devbook/infrastructure/authentication"
 	"io"
 	"net/http"
 	"strconv"
@@ -92,6 +93,17 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userIDToken, err := authentication.ExtractUserID(r)
+	if err != nil {
+		response.Erro(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	if userIDToken != ID {
+		response.Erro(w, http.StatusForbidden, errors.New("Unable to update a user other than your me"))
+		return
+	}
+
 	body, err := io.ReadAll(r.Body)
 
 	if err != nil {
@@ -113,15 +125,11 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	newUser, err := userService.UpdateUser(ID, user)
 
-	if newUser.ID == 0 {
-		response.Erro(w, http.StatusNotFound, errors.New("User not found"))
-		return
-	}
-
 	if err != nil {
 		response.Erro(w, http.StatusInternalServerError, err)
 		return
 	}
+
 	response.JSON(w, http.StatusOK, newUser)
 }
 
@@ -132,6 +140,18 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		response.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	tokenUserID, err := authentication.ExtractUserID(r)
+
+	if err != nil {
+		response.Erro(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	if tokenUserID != ID {
+		response.Erro(w, http.StatusForbidden, errors.New("Unable to delete a user other than your me"))
 		return
 	}
 

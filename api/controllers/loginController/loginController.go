@@ -2,8 +2,10 @@ package loginController
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/odanaraujo/api-devbook/api/response"
 	"github.com/odanaraujo/api-devbook/api/services/loginService"
+	"github.com/odanaraujo/api-devbook/infrastructure/authentication"
 	"github.com/odanaraujo/api-devbook/infrastructure/security"
 	"github.com/odanaraujo/api-devbook/request"
 	"io"
@@ -37,10 +39,16 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := security.VerifyPasswprd(userWithHash.Password, loginRequest.Password); err != nil {
+	if err := security.VerifyPassword(userWithHash.Password, loginRequest.Password); err != nil {
 		response.Erro(w, http.StatusUnauthorized, err)
 		return
 	}
 
-	response.JSON(w, http.StatusAccepted, loginRequest)
+	token, err := authentication.CreateToken(userWithHash.ID)
+
+	if err != nil {
+		response.Erro(w, http.StatusInternalServerError, err)
+	}
+
+	fmt.Println(token)
 }

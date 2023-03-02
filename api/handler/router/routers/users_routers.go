@@ -16,24 +16,24 @@ var RouterUsers = []Router{
 		URI:              "/users",
 		Method:           http.MethodGet,
 		Function:         userController.GetUsers,
-		IsAuthentication: false,
+		IsAuthentication: true,
 	},
 	{
 		URI:              "/user/{id}",
 		Method:           http.MethodGet,
 		Function:         userController.GetUser,
-		IsAuthentication: false,
+		IsAuthentication: true,
 	},
 	{
 		URI:              "/user/{id}",
 		Method:           http.MethodPut,
 		Function:         userController.UpdateUser,
-		IsAuthentication: false,
+		IsAuthentication: true,
 	},
 	{
 		URI:              "/user/{id}",
 		Method:           http.MethodDelete,
 		Function:         userController.DeleteUser,
-		IsAuthentication: false,
+		IsAuthentication: true,
 	},
 }

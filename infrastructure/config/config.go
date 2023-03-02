@@ -11,6 +11,7 @@ import (
 var (
 	StringConnectionDatabase = ""
 	Port                     = 0
+	SecretKey                []byte
 )
 
 func Carregar() {
@@ -25,6 +26,8 @@ func Carregar() {
 	if err != nil {
 		Port = 9000
 	}
+
+	SecretKey = []byte(os.Getenv("SECRET_KEY"))
 
 	StringConnectionDatabase = fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=true&loc=Local",
 		os.Getenv("DB_USER"),
