@@ -82,6 +82,24 @@ func (usersRepository users) GetUserId(ID uint64) (domain.User, error) {
 	return user, nil
 }
 
+func (usersRepository users) GetPassword(ID uint64) (string, error) {
+	line, err := usersRepository.db.Query("select senha from usuarios where id=?", ID)
+
+	if err != nil {
+		return "", err
+	}
+
+	var user domain.User
+
+	for line.Next() {
+		if err := line.Scan(&user.Password); err != nil {
+			return "", err
+		}
+	}
+
+	return user.Password, nil
+}
+
 func (usersRepository users) UpdateUser(ID uint64, user domain.User) (domain.User, error) {
 	statement, err := usersRepository.db.Prepare("update usuarios set nome = ?, email = ?, nick = ? where id = ?")
 
@@ -115,5 +133,117 @@ func (usersRepository users) DeleteUser(ID uint64) error {
 		return err
 	}
 
+	return nil
+}
+
+func (userRepository users) FollowUser(userID uint64, followID uint64) error {
+	statement, err := userRepository.db.Prepare("insert into seguidores (usuario_id, seguidor_id) values(?, ?)")
+
+	if err != nil {
+		return err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(userID, followID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (userRepository users) UnfollowUser(userID uint64, followID uint64) error {
+	statement, err := userRepository.db.Prepare("delete from seguidores where usuario_id = ? AND seguidor_id = ?")
+
+	if err != nil {
+		return err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(userID, followID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (userRepository users) GetFollowersUser(userID uint64) ([]domain.User, error) {
+	lines, err := userRepository.db.Query(
+		"select id, nome, nick, email, dataCriacao "+
+			"from usuarios u "+
+			"inner join seguidores s on u.id = s.seguidor_id "+
+			"where s.usuario_id = ?", userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var users []domain.User
+	for lines.Next() {
+		var user domain.User
+
+		if err = lines.Scan(
+			&user.ID,
+			&user.Name,
+			&user.Nick,
+			&user.Email,
+			&user.CreateDate,
+		); err != nil {
+			return users, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
+func (userRepository users) GetFollowingUser(userID uint64) ([]domain.User, error) {
+	lines, err := userRepository.db.Query(
+		"select id, nome, nick, email, dataCriacao "+
+			"from usuarios u "+
+			"inner join seguidores s on u.id = s.usuario_id "+
+			"where s.seguidor_id = ?", userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var users []domain.User
+	for lines.Next() {
+		var user domain.User
+
+		if err = lines.Scan(
+			&user.ID,
+			&user.Name,
+			&user.Nick,
+			&user.Email,
+			&user.CreateDate,
+		); err != nil {
+			return users, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
+func (userRepository users) UpdatePassword(userID uint64, passwordHash string) error {
+	statement, err := userRepository.db.Prepare("update usuarios set senha = ? where id = ?")
+
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	_, err = statement.Exec(passwordHash, userID)
+
+	if err != nil {
+		return err
+	}
 	return nil
 }

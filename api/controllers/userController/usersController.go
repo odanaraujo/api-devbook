@@ -8,6 +8,7 @@ import (
 	"github.com/odanaraujo/api-devbook/api/services/userService"
 	"github.com/odanaraujo/api-devbook/domain"
 	"github.com/odanaraujo/api-devbook/infrastructure/authentication"
+	"github.com/odanaraujo/api-devbook/infrastructure/security"
 	"io"
 	"net/http"
 	"strconv"
@@ -161,5 +162,169 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		response.Erro(w, http.StatusInternalServerError, err)
 	}
 
-	response.JSON(w, http.StatusNoContent, nil)
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func FollowUser(w http.ResponseWriter, r *http.Request) {
+	followID, err := authentication.ExtractUserID(r)
+
+	if err != nil {
+		response.Erro(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	params := mux.Vars(r)
+	ID, err := strconv.ParseUint(params["userId"], 10, 32)
+
+	if err != nil {
+		response.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if followID == ID {
+		response.Erro(w, http.StatusForbidden, errors.New("Unable to follow yourself"))
+		return
+	}
+
+	if err := userService.FollowUser(ID, followID); err != nil {
+		response.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func UnfollowUser(w http.ResponseWriter, r *http.Request) {
+	followID, err := authentication.ExtractUserID(r)
+
+	if err != nil {
+		response.Erro(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	params := mux.Vars(r)
+	ID, err := strconv.ParseUint(params["userId"], 10, 64)
+
+	if err != nil {
+		response.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if followID == ID {
+		response.Erro(w, http.StatusForbidden, errors.New("Unable to unfollow yourself"))
+		return
+	}
+
+	if err := userService.UnfollowUser(ID, followID); err != nil {
+		response.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func GetFollowersUser(w http.ResponseWriter, r *http.Request) {
+
+	params := mux.Vars(r)
+	ID, err := strconv.ParseUint(params["userId"], 10, 64)
+
+	if err != nil {
+		response.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	users, err := userService.GetFollowersUser(ID)
+
+	if err != nil {
+		response.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, users)
+
+}
+
+func GetFollowingUser(w http.ResponseWriter, r *http.Request) {
+
+	params := mux.Vars(r)
+	ID, err := strconv.ParseUint(params["userId"], 10, 64)
+
+	if err != nil {
+		response.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	users, err := userService.GetFollowingUser(ID)
+
+	if err != nil {
+		response.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, users)
+}
+
+func UpdatePassword(w http.ResponseWriter, r *http.Request) {
+
+	userToken, err := authentication.ExtractUserID(r)
+
+	if err != nil {
+		response.Erro(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	params := mux.Vars(r)
+	ID, err := strconv.ParseUint(params["userId"], 10, 64)
+
+	if userToken != ID {
+		response.Erro(w, http.StatusForbidden, errors.New("You are not allowed to update third party password"))
+		return
+	}
+
+	if err != nil {
+		response.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	body, err := io.ReadAll(r.Body)
+
+	if err != nil {
+		response.Erro(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	var request domain.PasswordRequest
+	if err := json.Unmarshal(body, &request); err != nil {
+		response.Erro(w, http.StatusBadRequest, err)
+		return
+	}
+
+	validateOldPassword(w, userToken, request.OldPassword)
+
+	passwordHash, err := security.Hash(request.NewPassword)
+	if err != nil {
+		response.Erro(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := userService.UpdatePassword(userToken, string(passwordHash)); err != nil {
+		response.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func validateOldPassword(w http.ResponseWriter, userToken uint64, oldPassword string) {
+	password, err := userService.GetPassword(userToken)
+
+	if err != nil {
+		response.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if err := security.VerifyPassword(password, oldPassword); err != nil {
+		response.Erro(w, http.StatusUnauthorized, errors.New("Please enter a valid old password"))
+		return
+	}
 }

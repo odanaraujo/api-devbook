@@ -36,4 +36,34 @@ var RouterUsers = []Router{
 		Function:         userController.DeleteUser,
 		IsAuthentication: true,
 	},
+	{
+		URI:              "/users/{userId}/follow",
+		Method:           http.MethodPost,
+		Function:         userController.FollowUser,
+		IsAuthentication: true,
+	},
+	{
+		URI:              "/users/{userId}/unfollow",
+		Method:           http.MethodDelete,
+		Function:         userController.UnfollowUser,
+		IsAuthentication: true,
+	},
+	{
+		URI:              "/users/{userId}/followers",
+		Method:           http.MethodGet,
+		Function:         userController.GetFollowersUser,
+		IsAuthentication: true,
+	},
+	{
+		URI:              "/users/{userId}/following",
+		Method:           http.MethodGet,
+		Function:         userController.GetFollowingUser,
+		IsAuthentication: true,
+	},
+	{
+		URI:              "/users/{userId}/update-password",
+		Method:           http.MethodPost,
+		Function:         userController.UpdatePassword,
+		IsAuthentication: true,
+	},
 }
