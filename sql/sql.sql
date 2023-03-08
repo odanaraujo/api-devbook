@@ -1,8 +1,9 @@
 CREATE DATABASE IF NOT EXISTS dansa;
 USE dansa;
 
-DROP TABLE IF EXISTS usuarios;
+DROP TABLE IF EXISTS publicacoes;
 DROP TABLE IF EXISTS seguidores;
+DROP TABLE IF EXISTS usuarios;
 
 CREATE TABLE usuarios (
     `id` int NOT NULL AUTO_INCREMENT,
@@ -25,4 +26,16 @@ CREATE TABLE seguidores (
     REFERENCES usuarios(id)
     ON DELETE CASCADE,
     primary key (usuario_id, seguidor_id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE publicacoes (
+    `id` int NOT NULL AUTO_INCREMENT,
+    `titulo` varchar(50) NOT NULL,
+    `conteudo` varchar(150)NOT NULL,
+    `autor_id` int NOT NULL,
+    FOREIGN KEY (autor_id) REFERENCES usuarios(id)
+    ON DELETE CASCADE,
+    `likes` varchar(50) default 0,
+    `dataCriacao` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
