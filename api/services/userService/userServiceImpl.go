@@ -63,6 +63,25 @@ func GetUserID(ID uint64) (domain.User, error) {
 	return user, nil
 }
 
+func GetPassword(ID uint64) (string, error) {
+	db, err := database.Connection()
+
+	if err != nil {
+		return "", err
+	}
+
+	defer db.Close()
+
+	repo := repository.NewRepositoryUser(db)
+	password, err := repo.GetPassword(ID)
+
+	if err != nil {
+		return "", err
+	}
+
+	return password, nil
+}
+
 func UpdateUser(ID uint64, newUser domain.User) (domain.User, error) {
 	db, err := database.Connection()
 
@@ -93,6 +112,101 @@ func DeleteUser(ID uint64) error {
 
 	repo := repository.NewRepositoryUser(db)
 	err = repo.DeleteUser(ID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func FollowUser(userID uint64, followID uint64) error {
+	db, err := database.Connection()
+
+	if err != nil {
+		return err
+	}
+
+	defer db.Close()
+
+	repo := repository.NewRepositoryUser(db)
+	err = repo.FollowUser(userID, followID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UnfollowUser(userID uint64, followID uint64) error {
+	db, err := database.Connection()
+
+	if err != nil {
+		return err
+	}
+
+	defer db.Close()
+
+	repo := repository.NewRepositoryUser(db)
+	err = repo.UnfollowUser(userID, followID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetFollowersUser(userID uint64) ([]domain.User, error) {
+	db, err := database.Connection()
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer db.Close()
+
+	repo := repository.NewRepositoryUser(db)
+	users, err := repo.GetFollowersUser(userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
+func GetFollowingUser(userID uint64) ([]domain.User, error) {
+	db, err := database.Connection()
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer db.Close()
+
+	repo := repository.NewRepositoryUser(db)
+	users, err := repo.GetFollowingUser(userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
+func UpdatePassword(userID uint64, passwordHash string) error {
+	db, err := database.Connection()
+
+	if err != nil {
+		return err
+	}
+
+	defer db.Close()
+
+	repo := repository.NewRepositoryUser(db)
+	err = repo.UpdatePassword(userID, passwordHash)
 
 	if err != nil {
 		return err
