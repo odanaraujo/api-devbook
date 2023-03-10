@@ -2,12 +2,14 @@ package publishController
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"github.com/odanaraujo/api-devbook/api/response"
 	"github.com/odanaraujo/api-devbook/api/services/publishService"
 	"github.com/odanaraujo/api-devbook/domain"
 	"github.com/odanaraujo/api-devbook/infrastructure/authentication"
 	"io"
 	"net/http"
+	"strconv"
 )
 
 func CreaterPublish(w http.ResponseWriter, r *http.Request) {
@@ -39,6 +41,33 @@ func CreaterPublish(w http.ResponseWriter, r *http.Request) {
 	publish.AuthorID = tokenID
 
 	publish.ID, err = publishService.CreaterPublish(publish)
+
+	if err != nil {
+		response.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, publish)
+}
+
+func GetPublish(w http.ResponseWriter, r *http.Request) {
+	err := authentication.ValidateToken(r)
+
+	if err != nil {
+		response.Erro(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	params := mux.Vars(r)
+
+	ID, err := strconv.ParseUint(params["publishId"], 10, 64)
+
+	if err != nil {
+		response.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	publish, err := publishService.GetPublish(ID)
 
 	if err != nil {
 		response.Erro(w, http.StatusInternalServerError, err)

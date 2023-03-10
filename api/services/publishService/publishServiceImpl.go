@@ -24,3 +24,20 @@ func CreaterPublish(publish domain.Publish) (uint64, error) {
 
 	return ID, nil
 }
+
+func GetPublish(ID uint64) (domain.Publish, error) {
+	db, err := database.Connection()
+
+	if err != nil {
+		return domain.Publish{}, err
+	}
+
+	repo := repository.NewRepositoryPublish(db)
+	publish, err := repo.GetPublish(ID)
+
+	if err != nil {
+		return domain.Publish{}, err
+	}
+
+	return publish, nil
+}

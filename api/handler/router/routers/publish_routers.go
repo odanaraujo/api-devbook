@@ -12,4 +12,10 @@ var routerPublish = []Router{
 		Function:         publishController.CreaterPublish,
 		IsAuthentication: true,
 	},
+	{
+		URI:              "/publish/{publishID}",
+		Method:           http.MethodGet,
+		Function:         publishController.GetPublish,
+		IsAuthentication: true,
+	},
 }
