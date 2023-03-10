@@ -37,7 +37,10 @@ func (p publish) CreaterPublish(publish domain.Publish) (uint64, error) {
 }
 
 func (p publish) GetPublish(ID uint64) (domain.Publish, error) {
-	line, err := p.db.Query("select titulo, conteudo, autor_id, autor_nick where id = ?", ID)
+	line, err := p.db.Query(
+		"select p.*, u.nick from publicacoes p "+
+			"inner join usuarios u on u.id = p.autor_id "+
+			"where p.id = ?", ID)
 
 	if err != nil {
 		return domain.Publish{}, err

@@ -51,19 +51,13 @@ func CreaterPublish(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetPublish(w http.ResponseWriter, r *http.Request) {
-	err := authentication.ValidateToken(r)
-
-	if err != nil {
-		response.Erro(w, http.StatusUnauthorized, err)
-		return
-	}
 
 	params := mux.Vars(r)
 
 	ID, err := strconv.ParseUint(params["publishId"], 10, 64)
 
 	if err != nil {
-		response.Erro(w, http.StatusInternalServerError, err)
+		response.Erro(w, http.StatusBadRequest, err)
 		return
 	}
 
