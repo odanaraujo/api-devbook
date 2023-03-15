@@ -41,3 +41,22 @@ func GetPublish(ID uint64) (domain.Publish, error) {
 
 	return publish, nil
 }
+
+func GetAllPublish(ID uint64) ([]domain.Publish, error) {
+	db, err := database.Connection()
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer db.Close()
+
+	repo := repository.NewRepositoryPublish(db)
+	users, err := repo.GetAllPublish(ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}

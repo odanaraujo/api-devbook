@@ -54,7 +54,7 @@ func GetPublish(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
 
-	ID, err := strconv.ParseUint(params["publishId"], 10, 64)
+	ID, err := strconv.ParseUint(params["publishID"], 10, 64)
 
 	if err != nil {
 		response.Erro(w, http.StatusBadRequest, err)
@@ -69,4 +69,22 @@ func GetPublish(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.JSON(w, http.StatusOK, publish)
+}
+
+func GetAllPublish(w http.ResponseWriter, r *http.Request) {
+	userID, err := authentication.ExtractUserID(r)
+
+	if err != nil {
+		response.Erro(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	users, err := publishService.GetAllPublish(userID)
+
+	if err != nil {
+		response.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, users)
 }
